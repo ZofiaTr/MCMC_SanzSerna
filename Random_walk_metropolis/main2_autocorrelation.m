@@ -18,15 +18,25 @@ fprintf('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n');
 % choose initial seed, comment out to turn off, see help rng
 seed=0;
 rng(seed);
-
-
 myFontSize = 14;
+
+%inverse  temperature 
+beta = 1.0;
+
+% potential
+V = @(x) x.^4;
+
+% target probability density
+rho = @(x) exp(-beta .*V(x));
 
 % step size
 h = [0.5, 1, 2, 4];
-
 % number of various stepsizes
 nrh = length(h);
+% number of steps 
+N = 1000000;
+%initial condition 
+X0=0;
 
 lag  = 0:19;
 
@@ -40,7 +50,7 @@ for stepSize = h
     fprintf('Sampling with step size h = %f\n', stepSize);
     i = i+1;
 
-    [X, rejections] = sample_MetropolisRW(stepSize);
+    [X, rejections] = sample_MetropolisRW(N, stepSize, rho, X0);
     
     rho_nu = compute_empirical_auto_correlation_coeff(X, lag);
    

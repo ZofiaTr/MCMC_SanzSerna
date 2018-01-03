@@ -25,6 +25,9 @@ fprintf('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n');
 fprintf(' Euler-Maruyana discretisation of the SDE\n');
 fprintf('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n');
 
+% intial condition
+X0 = 1;
+
 %% Part 1
 %% Trajectories
 
@@ -47,7 +50,7 @@ for nrtraj = 1 : numberOfTrajectories
     
     fprintf('Sampling trajectory = %d\n', nrtraj);
        
-    X  = sample_EulerMaruyama(N, dt);
+    X  = sample_EulerMaruyama_linearDrift(N, dt, X0);
     
     plot((1:N) * dt, X, '-b', 'LineWidth', 2)
     xlabel('time', 'FontSize', myFontSize)
@@ -86,10 +89,12 @@ for nrtraj = 1 : numberOfTrajectories
     
     fprintf('Sampling trajectory number %d\n', nrtraj);
        
-    X  = sample_EulerMaruyama(N, dt);
+    X  = sample_EulerMaruyama_linearDrift(N, dt, X0);
     XfinalTime(nrtraj) = X(end);
         
 end
+
+fprintf('Done\n');
 %%
 
 f10 = figure(10);

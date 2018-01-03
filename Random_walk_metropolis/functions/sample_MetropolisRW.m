@@ -1,43 +1,37 @@
-function [X, rejections] = sample_MetropolisRW(stepSize)
+function [X, rejections] = sample_MetropolisRW(N, h, rho, X0)
+% parameters :
+%  
+%   number of steps N
+%   stepsize h
+%   rho is target density
+%   initial condition X_0, size(1, d)
+% return : trajectory and number of rejections
 
-% number of steps 
-N = 1000000;
-
-% step size
-h = stepSize;
-
-%inverse  temperature 
-beta = 1.0;
-
-% potential
-V = @(x) x.^4;
-
-% target probability density
-rho = @(x) exp(-beta .*V(x));
-
+% determine dimension from the initial condition
+d = length(X0);
 % initialize array of samples
-X = zeros(1, N); 
+X = zeros(d, N); 
+X(:,1) = X0;
 rejections = 0;
 
 % intialize randon numbers, see help randn, help rand
 
-Z = randn(1, N);
+Z = randn(d, N);
 U = rand(1, N);
-
 
 for n = 1 : N - 1
     
     % proposal 
-    X(n+1) = X(n) + h * Z(n);
+    X(:,n+1) = X(:,n) + h * Z(:,n);
     
     %Metropolis step: acceptance ratio
-    acceptanceRatio = rho(X(n+1)) / rho(X(n));
+    acceptanceRatio = rho(X(:,n+1)) / rho(X(:,n));
     
     % random number 
     
     if (acceptanceRatio < U(n+1))
         % refuse
-        X(n+1) = X(n);
+        X(:,n+1) = X(:,n);
         rejections = rejections+1;
     end
     
