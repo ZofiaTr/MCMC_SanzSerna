@@ -1,0 +1,115 @@
+%% Euler-Maruyana discretisation of the SDE
+% 
+% compute numerical solution of the continuous SDE: dX_t = X_t dt + B_t,
+% t>0, X_0=1, where B_t is Wiener process
+% Euler-Maruyama discretization: X_n+1 = X_n + dt*X_n + sqrt(dt) * Z_n,
+% where Z_n ~ N(0,1) 
+
+% see matlab help for the used functions
+
+%%
+% clean the working space
+clear all;
+close all;
+clc;
+
+addpath([pwd,'/functions']);
+
+fprintf('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n');
+fprintf(' Euler-Maruyana discretisation of the SDE\n');
+fprintf('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n');
+
+% choose initial seed, comment out to turn off, see help rng
+seed=0;
+rng(seed);
+
+
+myFontSize = 14;
+
+% step size
+dt = 0.0001;
+
+% number of trajectories
+numberOfTrajectories = 10;
+
+% number of steps
+N = 10000;
+
+%lag  = 0:19;
+
+f9 = figure(9);
+hold on
+
+
+for nrtraj = 1 : numberOfTrajectories
+    
+    
+    fprintf('Sampling trajectory = %d\n', nrtraj);
+       
+    X  = sample_EulerMaruyama(N, dt);
+    
+    %rho_nu = compute_empirical_auto_correlation_coeff(X, lag);
+   
+    
+    plot((1:N) * dt, X, '-b', 'LineWidth', 2)
+    xlabel('time', 'FontSize', myFontSize)
+    ylabel('Solution', 'FontSize', myFontSize)
+    set(gca, 'FontSize', myFontSize)
+
+end
+%%
+print(f9,'figures/figure9','-dpng')
+
+%% Tasks:
+% 1) Turn off the noise and compare with the exact solution for the
+% corresponding ODE
+
+%% Solution
+% 1) exact solution of the ODE is exp(t)
+
+%% Histogram
+
+% number of trajectories
+numberOfTrajectories = 10000;
+
+% step size
+dt = 0.001;
+
+% number of steps, fix final time t = 1
+N = floor(1 / dt);
+
+XfinalTime = zeros(1,numberOfTrajectories);
+
+
+
+for nrtraj = 1 : numberOfTrajectories
+    
+    
+    fprintf('Sampling trajectory = %d\n', nrtraj);
+       
+    X  = sample_EulerMaruyama(N, dt);
+    XfinalTime(nrtraj) = X(end);
+    
+    
+
+end
+%%
+
+f10 = figure(10);
+h = histogram(XfinalTime, 15, 'Normalization','pdf');
+hold on
+binEdges = h.BinEdges;
+% center the bins
+binEdges = (binEdges(1:end-1)+binEdges(2:end))/2.0;
+normalizationConstant = integral(rho, -inf, inf);
+plot(binEdges, rho(binEdges)/normalizationConstant, 'LineWidth', 3)
+xlabel('X', 'FontSize', myFontSize)
+ylabel('Density', 'FontSize', myFontSize)
+set(gca, 'FontSize', myFontSize)
+
+print(f10,'figures/figure10','-dpng')
+
+
+
+
+
