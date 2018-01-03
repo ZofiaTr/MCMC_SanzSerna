@@ -31,7 +31,7 @@ r = @(x) norm(x, 2);
 V = @(x) 0.5 * k * (r(x) - 1)^2; %debug 0.5* x'*x;%
 % gradient of the potential
 %debug with dV = @(x) x;%
-dV = @(x) k * (r(x) - 1).* x./r(x);%k * (r(x) - 1).*sign(x);
+dV = @(x) k * (r(x) - 1).*x./r(x);%k * (r(x) - 1).*sign(x);
 % target probability density
 rho = @(x) exp(- V(x));
 
@@ -80,8 +80,8 @@ print(f14,'figures/figure14','-dpng')
 %%
 % %% MALA
 % % step size
-h = 0.025;
-numberOfSteps = 2000;
+h = 0.0001;
+numberOfSteps = 20000;
 
 fprintf('Sampling with MALA\n');
  

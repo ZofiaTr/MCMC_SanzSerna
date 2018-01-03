@@ -26,7 +26,7 @@ lag  = 0:19;
 k = 100.0;
 d = 100;
 % radius
-r = @(x) norm(x, 2);
+r = @(x)  norm(x, 2);
 % potential: notation from the paper- mathcal{L} = -V
 V = @(x) 0.5 * k * (r(x) - 1)^2; %debug 0.5* x'*x;%
 % gradient of the potential
@@ -41,7 +41,7 @@ X0 = ones(d, 1);
 %% Random Walk
 % step size
 h = 0.025;
-numberOfSteps = 500;
+numberOfSteps = 10000;
 
 f11 = figure(11);
 hold on
@@ -81,8 +81,8 @@ print(f11,'figures/figure11','-dpng')
 % %% MALA
 % % step size
 
-h = 0.25;
-numberOfSteps = 1000;
+h = 0.0000001;
+numberOfSteps = 10000;
 
 fprintf('Sampling with MALA\n');
  

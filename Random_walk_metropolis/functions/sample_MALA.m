@@ -7,7 +7,7 @@ function [X, rejections] = sample_MALA(N, h, V, dV , X0)
 %              initial condition X0 of size (d,1)
 % return : trajectory X, array (d,N)
 
-dt = 0.5*h^2;
+dt = sqrt(h);%0.5*h^2;
 rejections = 0 ;
 
 % determine dimension from the initial condition
@@ -26,7 +26,9 @@ for n = 1 : N - 1
     % proposal 
     Z = normrnd(0,1, size(xn));
     
-    xn = xn - dV(xn) * dt + sqrt(2.0 * dt) * Z;
+    xn = xn - 0.5 * dV(xn) * dt + sqrt(  dt) * Z;
+    
+    X(:,n+1) = xn;
     
     T_new =  V(xn) ;
     T_old =  V(xnOld) ;
@@ -34,16 +36,16 @@ for n = 1 : N - 1
     acceptanceProbaX =  exp( - (T_old - T_new) ) * ( TproposalMALA(xn,xnOld, dV ,dt) / TproposalMALA(xnOld, xn, dV, dt));
     
     %Metropolis step: acceptance ratio
-           
+    
     if (  acceptanceProbaX < rand(1) )
         % refuse
         X(:,n+1) = xnOld;
         rejections = rejections+1;
-    else
-        % accept
-        X(:,n+1) = xn;
+ 
        
     end
+
+
     
 end
 
