@@ -36,7 +36,7 @@ dV = @(x) k * (r(x) - 1).* x/r(x);%k * (r(x) - 1).*sign(x);
 rho = @(x) exp(- V(x));
 
 % initial condition 
-X0 = ones(d, 1);
+X0 = zeros(d, 1);
 
 %% Random Walk
 % step size

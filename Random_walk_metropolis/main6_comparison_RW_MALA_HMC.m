@@ -80,39 +80,44 @@ print(f14,'figures/figure14','-dpng')
 %%
 % %% MALA
 % % step size
-% h = 0.1;
-% numberOfSteps = 100;
-% 
-% fprintf('Sampling with MALA\n');
-%  
-% [X, rejections] = sample_MALA(numberOfSteps, h, V, dV , X0);
-%     
-% rho_nu = compute_empirical_auto_correlation_coeff(X(1,:), lag);
-% 
-% %%
-% f12 = figure(12);
-% hold on
-% 
-% subplot(1,2,1)
-% scatter(X(1,:), X(2,:),  2)
-% xlabel('X_1', 'FontSize', myFontSize)
-% ylabel('X_2', 'FontSize', myFontSize)
-% xlim([-1.5, 1.5])
-% ylim([-1.5, 1.5])
-% 
-% 
-% subplot(1,2,2)
-% plot(lag, rho_nu, 'LineWidth', 2)
-% xlabel('lag', 'FontSize', myFontSize)
-% ylabel('Correlation', 'FontSize', myFontSize)
-% %ylim([0,1])
-% xlim([0,max(lag)])
-% title(['h = ', num2str(h),', ',num2str(rejections), ' rejections, rate ', num2str(rejections / length(X))])
-% set(gca, 'FontSize', myFontSize)
-% 
-% 
-% %%
-% print(f12,'figures/figure12','-dpng')
+h = 0.025;
+numberOfSteps = 2000;
+
+fprintf('Sampling with MALA\n');
+ 
+[X, rejections] = sample_MALA(numberOfSteps, h, V, dV , X0);
+    
+rho_nu = compute_empirical_auto_correlation_coeff(X(1,:), lag);
+
+%%
+virial = mean(X.*dV(X)) ;
+confTempMALA = mean(virial');
+fprintf('MALA: configurational temperature is %f\n', confTempMALA );
+
+%%
+f15 = figure(15);
+hold on
+
+subplot(1,2,1)
+scatter(X(1,:), X(2,:),  2)
+xlabel('X_1', 'FontSize', myFontSize)
+ylabel('X_2', 'FontSize', myFontSize)
+xlim([-1.5, 1.5])
+ylim([-1.5, 1.5])
+
+
+subplot(1,2,2)
+plot(lag, rho_nu, 'LineWidth', 2)
+xlabel('lag', 'FontSize', myFontSize)
+ylabel('Correlation', 'FontSize', myFontSize)
+%ylim([0,1])
+xlim([0,max(lag)])
+title(['h = ', num2str(h),', ',num2str(rejections), ' rejections, rate ', num2str(rejections / length(X))])
+set(gca, 'FontSize', myFontSize)
+
+
+%%
+print(f15,'figures/figure15','-dpng')
 
 %% HMC
 % step size
