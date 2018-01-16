@@ -46,6 +46,7 @@ X = zeros(1, N);
 Z = randn(1, N);
 U = rand(1, N);
 
+fprintf('Sampling RW\n')
 
 for n = 1 : N - 1
     
@@ -64,6 +65,8 @@ for n = 1 : N - 1
     
 end
 
+fprintf('sampling done\n')
+
 %% show histogram
 
 myFontSize = 14;
@@ -77,11 +80,12 @@ set(gca, 'FontSize', myFontSize)
 print(f6,'figures/figure6','-dpng')
 
 %% tasks: 
-% 1) fit the target density on the histogram
-% 2) comment out the Metropolis step, and rerun the sampling only with the random walk proposal, what happens?
+% 1) fit the target density on the histogram, create plot of X over steps
+% 2) comment out the Metropolis step, and rerun the sampling only with the
+% random walk proposal, create plot of X over steps
 
 %% Answers:
-% 1) fit the target density
+%% 1) fit the target density
 
 figure(66)
 h = histogram(X, 20, 'Normalization','pdf');
@@ -94,5 +98,11 @@ plot(binEdges, rho(binEdges)/normalizationConstant, 'LineWidth', 3)
 xlabel('X', 'FontSize', myFontSize)
 ylabel('Density', 'FontSize', myFontSize)
 set(gca, 'FontSize', myFontSize)
+
+%% plot X over steps
+figure(666)
+plot(1:length(X),X)
+xlabel('steps')
+ylabel('X')
 
 

@@ -7,7 +7,8 @@ function [X, rejections] = sample_MALA(N, h, V, dV , X0)
 %              initial condition X0 of size (d,1)
 % return : trajectory X, array (d,N)
 
-dt = sqrt(h);%0.5*h^2;
+dt = 0.5*h^2;
+fprintf('Mala step size is %f\n', dt)
 rejections = 0 ;
 
 % determine dimension from the initial condition
@@ -26,7 +27,7 @@ for n = 1 : N - 1
     % proposal 
     Z = normrnd(0,1, size(xn));
     
-    xn = xn - 0.5 * dV(xn) * dt + sqrt(  dt) * Z;
+    xn = xn - 0.5 * dV(xn) * dt + sqrt(dt) * Z;
     
     X(:,n+1) = xn;
     

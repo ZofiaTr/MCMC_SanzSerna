@@ -51,9 +51,10 @@ for stepSize = h
     i = i+1;
 
     [X, rejections] = sample_MetropolisRW(N, stepSize, rho, X0);
-    
+    %%%%% compute_empirical_auto_correlation_coeff
     rho_nu = compute_empirical_auto_correlation_coeff(X, lag);
-   
+    %%%%%%%%%%%%%%%%%%%%%%%
+    
     subplot(2,2,i)
     plot(lag, rho_nu, 'LineWidth', 2)
     xlabel('lag', 'FontSize', myFontSize)

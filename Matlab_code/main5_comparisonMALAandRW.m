@@ -28,20 +28,19 @@ d = 100;
 % radius
 r = @(x)  norm(x, 2);
 % potential: notation from the paper- mathcal{L} = -V
-V = @(x) 0.5 * k * (r(x) - 1)^2; %debug 0.5* x'*x;%
+V = @(x) 0.5 * k * (r(x) - 1)^2; 
 % gradient of the potential
-%debug with dV = @(x) x;%
-dV = @(x) k * (r(x) - 1).* x/r(x);%k * (r(x) - 1).*sign(x);
+diffV = @(x) dV(x, k, d);
 % target probability density
 rho = @(x) exp(- V(x));
 
 % initial condition 
-X0 = ones(d, 1);
-
+X0 = zeros(d, 1);
+X0(1) = 1; 
 %% Random Walk
 % step size
 h = 0.025;
-numberOfSteps = 10000;
+numberOfSteps = 500;
 
 f11 = figure(11);
 hold on
@@ -56,9 +55,8 @@ subplot(1,2,1)
 scatter(X(1,:), X(2,:),  2)
 xlabel('X_1', 'FontSize', myFontSize)
 ylabel('X_2', 'FontSize', myFontSize)
-xlim([-1.5, 1.5])
-ylim([-1.5, 1.5])
-
+xlim([-2, 2])
+ylim([-2, 2])
 
 subplot(1,2,2)
 plot(lag, rho_nu, 'LineWidth', 2)
@@ -70,8 +68,8 @@ title(['h = ', num2str(h),', ',num2str(rejections), ' rejections, rate ', num2st
 set(gca, 'FontSize', myFontSize)
 
 %%
-virial = mean(X.*dV(X)) ;
-confTempRW = mean(virial');
+
+confTempRW = compute_configurational_temperature(X, diffV);
 fprintf('RW: configurational temperature is %f\n', confTempRW );
 
 %%
@@ -81,18 +79,18 @@ print(f11,'figures/figure11','-dpng')
 % %% MALA
 % % step size
 
-h = 0.0000001;
-numberOfSteps = 10000;
+h = 0.1;
+numberOfSteps = 100;
 
 fprintf('Sampling with MALA\n');
  
-[X, rejections] = sample_MALA(numberOfSteps, h, V, dV , X0);
+[X, rejections] = sample_MALA(numberOfSteps, h, V, diffV , X0);
     
 rho_nu = compute_empirical_auto_correlation_coeff(X(1,:), lag);
 
 %%
-virial = mean(X.*dV(X)) ;
-confTempMALA = mean(virial');
+
+confTempMALA = compute_configurational_temperature(X, diffV);
 fprintf('MALA: configurational temperature is %f\n', confTempMALA );
 
 %%
@@ -103,8 +101,8 @@ subplot(1,2,1)
 scatter(X(1,:), X(2,:),  2)
 xlabel('X_1', 'FontSize', myFontSize)
 ylabel('X_2', 'FontSize', myFontSize)
-xlim([-1.5, 1.5])
-ylim([-1.5, 1.5])
+xlim([-2, 2])
+ylim([-2, 2])
 
 
 subplot(1,2,2)

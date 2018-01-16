@@ -1,7 +1,7 @@
-function prop = TproposalMALA(pNew, pOld,  dV, t)
+function prop = TproposalMALA(qNew, qOld,  dV, t)
 
 
-     Tx = pNew - pOld + 0.5 * t *dV(pOld);
+     Tx = qNew - qOld + 0.5 * t *dV(qOld);
      
      Tabs = (Tx'*Tx ) / ( t);
      prop =   exp(-Tabs / 2.0);
