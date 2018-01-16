@@ -84,25 +84,3 @@ print(f6,'figures/figure6','-dpng')
 % 2) comment out the Metropolis step, and rerun the sampling only with the
 % random walk proposal, create plot of X over steps
 
-%% Answers:
-%% 1) fit the target density
-
-figure(66)
-h = histogram(X, 20, 'Normalization','pdf');
-hold on
-binEdges = h.BinEdges;
-% center the bins
-binEdges = (binEdges(1:end-1)+binEdges(2:end))/2.0;
-normalizationConstant = integral(rho, -inf, inf);
-plot(binEdges, rho(binEdges)/normalizationConstant, 'LineWidth', 3)
-xlabel('X', 'FontSize', myFontSize)
-ylabel('Density', 'FontSize', myFontSize)
-set(gca, 'FontSize', myFontSize)
-
-%% plot X over steps
-figure(666)
-plot(1:length(X),X)
-xlabel('steps')
-ylabel('X')
-
-

@@ -73,16 +73,6 @@ print(f7,'figures/figure7','-dpng')
 % 1) Compare with matlab's autocorr function.
 % 2) Try more values of the step size h.
 
-%% Solution
-% [rho_nu_matlab, lag_matlab, ~] = autocorr(X, 20);
-%     
-%     subplot(2,2,i)
-%     plot(lag, rho_nu, 'LineWidth', 2)
-%     hold on
-%     plot(lag_matlab, rho_nu_matlab, '-r','LineWidth', 2)
-% 
-
-
 
 
 
