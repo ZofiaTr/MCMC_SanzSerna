@@ -53,7 +53,8 @@ where $Z_n$ are independent identically distributed continuous random variables 
 a  = {\rm min}(1, \frac{\rho(\tilde{X}_{n+1})}{\rho(X_n)}).
 \]
 Otherwise the proposal is refused and we set $X_{n+1}=X_{n}$. 
-We use it to sample from the Boltzmann distribution with density
+
+In the following example, we use this algorithm to sample from the Boltzmann distribution with density
 \[
 \rho(x) = Z^{-1}{\rm e}^{-\beta x^4},
 \]
@@ -62,7 +63,7 @@ where $\beta$ is the inverse temperature and $Z$ is the normalization constant s
 \int_{\R} d\rho(x) = 1.
 \]
 
-The code begins with a common practice in MATLAB, which clears all the objects in the workspace, closes all figures and finally clears the command window.
+The code begins with a common practice in MATLAB to clear all the objects in the workspace, close all figures and clear the command window.
 \begin{verbatim}
 clear all;
 close all;
