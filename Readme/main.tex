@@ -6,11 +6,15 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage{amsfonts}
 
+\DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
 
 \newcommand{\figwidth}{4in}
 \newcommand\tab[1][0.5cm]{\hspace*{#1}}
 \renewcommand\thesubsection{\thesection.\alph{subsection}}
+
+\newcommand{\R}{\mathbb{R}}
 
 \title{Research Skills for Computational Applied Mathematics}
 \subtitle{Matlab documentation}
@@ -40,10 +44,95 @@ The main source code is located in folder "Matlab$\_$code". The exercise tasks $
 \subsection{Histogram}
 The source code is in "main1$\_$sample$\_$MetropolisRW.m". The simulation is described in~\cite{sanz2014markov}[Section 5.3 ] and it reproduces~\cite{sanz2014markov}[Figure 6].
 
+The following code implements one dimensional Metropolis random walk, i.e. for $N$ simulation steps, the new state $X_{n+1}$ is obtained from the previous state $X_{n}$ using the proposal
+\[
+\tilde{X}_{n+1} = X_n + Z_n,
+\]
+where $Z_n$ are independent identically distributed continuous random variables in $\R^d$ with $d=1$ according to a normal (Gaussian) distribution $\mathcal{N}(0,1)$. The new state is then obtained by Metropolis rule, which defines the acceptance probability $a$ for $\tilde{X}^{n+1}$ as
+\[
+a  = {\rm min}(1, \frac{\rho(\tilde{X}_{n+1})}{\rho(X_n)}).
+\]
+Otherwise the proposal is refused and we set $X_{n+1}=X_{n}$. 
+We use it to sample from the Boltzmann distribution with density
+\[
+\rho(x) = Z^{-1}{\rm e}^{-\beta x^4},
+\]
+where $\beta$ is the inverse temperature and $Z$ is the normalization constant such that
+\[
+\int_{\R} d\rho(x) = 1.
+\]
+
+The code begins with a common practice in MATLAB, which clears all the objects in the workspace, closes all figures and finally clears the command window.
+\begin{verbatim}
+clear all;
+close all;
+clc;
+\end{verbatim}
+The simulation parameters and the distribution are defined in this section, their description is within the MATLAB comments.
+\begin{verbatim}
+% number of steps 
+N = 1000000;
+% step size
+h = 1.0;
+%inverse  temperature 
+beta = 1.0;
+
+% potential
+V = @(x) x.^4;
+
+% target probability density
+rho = @(x) exp(-beta .*V(x));
+\end{verbatim}
+It is possible to define the random number generator by fixing the seed. The code then produces the same sequence of random numbers at every execution. This can be useful for example for debugging.
+\begin{verbatim}
+seed=0;
+rng(seed);
+\end{verbatim}
+Once we have initialized the arrays to store the samples, we can start the main iteration of $N$ steps to perform the sampling. Note that for small systems, it is more efficient to precompute the array of random numbers.
+\begin{verbatim}
+% initialize array of samples
+X = zeros(1, N); 
+% intialize randon numbers, see help randn, help rand
+Z = randn(1, N);
+U = rand(1, N);
+
+fprintf('Sampling RW\n')
+
+for n = 1 : N - 1    
+    % proposal 
+    X(n+1) = X(n) + h * Z(n);
+    
+    %Metropolis step: acceptance ratio
+    acceptanceRatio = rho(X(n+1)) / rho(X(n));
+    
+    % metropolis rule
+    if (acceptanceRatio < U(n+1))
+        % refuse
+        X(n+1) = X(n);
+    end
+    
+end
+fprintf('sampling done\n')
+\end{verbatim}
+In the postprocessing part, we create a histogram of samples $X_n$. Note that in order to make all figures consistent, it is a good idea to define parameters, which, for example, fix the font size. 
+\begin{verbatim}
+%% show histogram
+myFontSize = 14;
+
+f6 = figure(6);
+h = histogram(X, 20, 'Normalization','probability');
+xlabel('X', 'FontSize', myFontSize)
+ylabel('Probability', 'FontSize', myFontSize)
+set(gca, 'FontSize', myFontSize)
+
+%save the figure
+print(f6,'figures/figure6','-dpng')
+\end{verbatim}
+
 \subsection{Tasks}
 \begin{enumerate}
-\item Fit the target density on the histogram, create plot of $X^n$ over $n $ steps.
-\item Comment out the Metropolis step, and rerun the sampling only with the random walk proposal, create plot of $X^n$ over $n $ steps.
+\item Fit the target density on the histogram, create plot of $Y_n$ over $n $ steps.
+\item Comment out the Metropolis step, and rerun the sampling only with the random walk proposal, create plot of $Y_n$ over $n $ steps.
 \end{enumerate}
 
 
