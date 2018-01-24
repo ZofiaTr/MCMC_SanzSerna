@@ -22,9 +22,7 @@
 \begin{document}
 
 \begin{titlepage}
-\author{Dr. Kostas Zygalakis\\ k.zygalakis@ed.ac.uk
-\and 
-Dr. Zofia Trstanova\\zofia.trstanova@ed.ac.uk}
+\author{Dr. Zofia Trstanova\\zofia.trstanova@ed.ac.uk \and Dr. Kostas Zygalakis\\ k.zygalakis@ed.ac.uk}
 
 
 \clearpage\maketitle
@@ -39,6 +37,14 @@ This project strictly follows~\cite{sanz2014markov}. The programming exercises a
 
 The main source code is located in folder "Matlab$\_$code". The exercise tasks $1-6$ correspond to functions called "main$+$task$\_$number$+$task$\_$name ". Functions used in the main files are saved in folder "functions", which is linked by "addpath" command at the beginning of each file. Figures are saved in folder "figures".
 
+For MATLAB documentation, see \url{https://uk.mathworks.com/help/matlab/} or type
+\begin{verbatim}
+help commandYouWantToKnowAbout
+\end{verbatim}
+in MATLAB. 
+
+Other useful tools for writing the report and presentations are \LaTeX and beamer package, see \url{https://en.wikibooks.org/wiki/LaTeX/Presentations}. You can create a project on \url{overleaf.com}, there are also many templates available.
+
 \section{Metropolis Random Walk}
 
 \subsection{Histogram}
@@ -50,17 +56,18 @@ The following code implements one dimensional Metropolis random walk, i.e. for $
 \]
 where $Z_n$ are independent identically distributed continuous random variables in $\R^d$ with $d=1$ according to a normal (Gaussian) distribution $\mathcal{N}(0,1)$. The new state is then obtained by Metropolis rule, which defines the acceptance probability $a$ for $\tilde{X}^{n+1}$ as
 \[
-a  = {\rm min}(1, \frac{\rho(\tilde{X}_{n+1})}{\rho(X_n)}).
+a  = {\rm min}\left(1, \frac{\rho(\tilde{X}_{n+1})}{\rho(X_n)}\right).
 \]
 Otherwise the proposal is refused and we set $X_{n+1}=X_{n}$. 
 
 In the following example, we use this algorithm to sample from the Boltzmann distribution with density
-\[
+\begin{equation}
 \rho(x) = Z^{-1}{\rm e}^{-\beta x^4},
-\]
+\label{quartic}
+\end{equation}
 where $\beta$ is the inverse temperature and $Z$ is the normalization constant such that
 \[
-\int_{\R} d\rho(x) = 1.
+\int_{\R} \rho(x)dx = 1.
 \]
 
 The code begins with a common practice in MATLAB to clear all the objects in the workspace, close all figures and clear the command window.
@@ -141,11 +148,119 @@ print(f6,'figures/figure6','-dpng')
 
 The source code is in "main2$\_$sample$\_$autocorrelation.m". The simulation reproduces~\cite{sanz2014markov}[Figure 7].
 
+This code performs the sampling of the distribution~\eqref{quartic} by Random Walk Metropolis Algorithm (see previous section). The main difference with the structure of \\ "main1$\_$sample$\_$MetropolisRW.m" is that the sampling part is wrapped up as a function called "sample$\_$MetropolisRW" which is saved in folder "functions". This function takes number of steps to be performed $N$, steps size $h$, distribution that should be sampled $\rho$ and initial state $X_0$ and returns an array of $N$ samples $X$ and an array of rejections of size $N$.
+\begin{verbatim}
+function [X, rejections] = sample_MetropolisRW(N, h, rho, X0)
+% parameters :
+%  
+%   number of steps N
+%   stepsize h
+%   rho is target density
+%   initial condition X_0, size(1, d)
+% return : trajectory and number of rejections
+
+% determine dimension from the initial condition
+d = length(X0);
+% initialize array of samples
+X = zeros(d, N); 
+X(:,1) = X0;
+rejections = 0;
+
+% intialize randon numbers, see help randn, help rand
+Z = randn(d, N);
+U = rand(1, N);
+
+for n = 1 : N - 1   
+    % proposal 
+    X(:,n+1) = X(:,n) + h * Z(:,n);    
+    %Metropolis step: acceptance ratio
+    acceptanceRatio = rho(X(:,n+1)) / rho(X(:,n));    
+    % random number    
+    if (acceptanceRatio < U(n+1))
+        % refuse
+        X(:,n+1) = X(:,n);
+        rejections = rejections+1;
+    end
+end
+
+
+end
+\end{verbatim}
+
+The main code "main2$\_$sample$\_$autocorrelation.m" then calls this function to generate samples. The first part of the code is as before:
+\begin{verbatim}
+% clean the working space
+clear all;
+close all;
+clc;
+
+addpath([pwd,'/functions']);
+
+% choose initial seed, comment out to turn off, see help rng
+seed=0;
+rng(seed);
+myFontSize = 14;
+
+%inverse  temperature 
+beta = 1.0;
+% potential
+V = @(x) x.^4;
+% target probability density
+rho = @(x) exp(-beta .*V(x));
+\end{verbatim}
+We want to investigate several step sizes, we therefore have an array of step sizes $h$, which will be iterated over later on.
+\begin{verbatim}
+% step size
+h = [0.5, 1, 2, 4];
+% number of various stepsizes
+nrh = length(h);
+% number of steps 
+N = 1000000;
+%initial condition 
+X0=0;
+\end{verbatim}
+In order to compute the empirical auto-covariance, we choose the lag array. We also initialize a figure to allow writing inside during the iterations over the step sizes.
+\begin{verbatim}
+lag  = 0:19;
+
+f7 = figure(7);
+hold on
+% initialize for loop counter
+i=0;
+\end{verbatim}
+What follows is the main for-loop over the step sizes: for every step size $h$, we perform the sampling and compute the empirical auto-correlation. The implementation of the function \textit{compute$\_$empirical$\_$auto$\_$correlation$\_$coeff} is one of the tasks (see at the bottom of this section). Finally, within each iteration, we plot the auto-covariance in a subplot belonging to the pre-intialized figure.
+\begin{verbatim}
+for stepSize = h 
+    fprintf('Sampling with step size h = %f\n', stepSize);
+    % increase the loop counter
+    i = i+1;
+   % perform the sampling with given parameters	
+    [X, rejections] = sample_MetropolisRW(N, stepSize, rho, X0);
+    %%%%% compute_empirical_auto_correlation_coeff
+    rho_nu = compute_empirical_auto_correlation_coeff(X, lag);
+    %%%%%%%%%%%%%%%%%%%%%%%
+    
+    subplot(2,2,i)
+    plot(lag, rho_nu, 'LineWidth', 2)
+    xlabel('lag', 'FontSize', myFontSize)
+    ylabel('Correlation', 'FontSize', myFontSize)
+    ylim([0,1])
+    xlim([0,max(lag)])
+    legend(['h = ', num2str(stepSize)])
+    title([num2str(rejections), ' rejections, rate ', num2str(rejections / length(X))])
+    set(gca, 'FontSize', myFontSize)
+
+end
+%% save figure
+print(f7,'figures/figure7','-dpng')
+\end{verbatim}
+
+
 \subsection{Tasks}
 \begin{enumerate}
 \item Implement auto-covariance function called "compute$\_$empirical$\_$auto$\_$correlation$\_$coeff" which takes array of samples $X$ and lag and returns empirical auto-covariance computed according to the formula at the end of~\cite{sanz2014markov}[Section 5.3 ].
 \item Compare with the correlation obtained with Matlab's "autocorr" function and plot the results together.
-\item Try out more values for the step size $h$.
+\item Try out more values for the step size $h$. Comment on what you observe.
 \end{enumerate}
 
 
@@ -174,11 +289,73 @@ The source code is in "main5$\_$sample$\_$comparisonMALAandRW". The simulation r
 
 The source code is in "main6$\_$sample$\_$comparison$\_$RW$\_$MALA$\_$HMC". The simulation reproduces~\cite{sanz2014markov}[Figures 14, 15 and 16]. 
 
-\newpage
+\subsection{Tasks}
+\begin{enumerate}
+\item Modify the code for HMC, so that the time-step $\Delta t$ can be random.
+\end{enumerate}
+
 
 \bibliographystyle{plain}
 
 \bibliography{bibliography}
+
+
+\newpage
+
+\section*{MATH11197: Research Skills in Computational Applied Mathematics. }
+
+\paragraph{Individual report}
+
+
+\paragraph{First part:} You are asked to complete the tasks outlined in the matlab documentation.In particular, marks associated with each task are
+\begin{itemize}
+\item Task 2.b (1) $5\%$ (2) $5\%$
+\item Task 3.a (1) $5\%$ (2) $5\%$  (3) $10 \%$
+\item Task 5.a (1) $5\%$ (2) $5\%$
+\item Task 7.a (1) $5\%$
+\end{itemize}
+
+
+\paragraph{Second part:} \emph{Application to sampling in high dimensions}
+\newline
+Consider the problem of sampling from a high dimensional Gaussian with  covariance matrix $\Sigma$ given by 
+\[
+\Sigma =\text{diag} (\sigma^{2}_{1}, \cdots, \sigma^{2}_{100}), \quad  \sigma_{i}=(i/100)^{2}.
+\]
+\begin{enumerate}
+\item Write down the Hamiltonian equations of motion using a quadratic kinetic energy function. In particular your Hamiltonian should be of the form  
+\[
+H=\frac{p^{T}p}{2}+V(x),
+\]
+where $V(x)$ needs to be chosen in the appropriate way in order to ensure that one is sampling from the desired distribution.  \hfill [$5 \%$]
+\item Write down the discretization of the Hamiltonian equations using the leapfrog method \hfill [$5 \%$]
+\item By studying the corresponding one step map, deduce what is the maximum  $\Delta t$  that one is allowed to use when discretising the Hamiltonian equations. \hfill [$10\%$]
+\item Compare the performance between the Random Walk Metropolis and the Hamiltonian Monte Carlo (with deterministic and random choice of $\Delta t)$. Possible  diagnostic tests include \hfill [$35 \%$]
+\begin{enumerate}
+\item Plot the outputs for different co-ordinates for the RWM and HMC
+\item Studying the autocorrelation function for different co-ordinates and different methods
+\item Plotting the sample mean as a function of the different co-ordinates 
+\item Plotting the standard deviation as a function of the different co-ordinates
+\item Plotting the distribution of the MCMC method against the true distribution (you can do this component wise since every component is independent of each other)
+\end{enumerate}
+\end{enumerate}
+
+
+
+
+
+
+\paragraph{Deadline} The assignment is to be handed in to MTO by Friday the 23rd of February at 12am. You will also 
+need to submit your  \texttt{Matlab} code online through learn. 
+
+
+
+ 
+
+
+
+
+
 
 
 	
