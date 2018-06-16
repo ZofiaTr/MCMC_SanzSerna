@@ -1,4 +1,4 @@
-function [X, rejections] = sample_HMC(N, dt, T, V, dV , X0)
+function [X, rejections] = sample_HMC(N, dt, T, V, dV , X0, beta)
 % HMC
 % parameters : int N, number of steps
 %              double dt, time step size
@@ -36,20 +36,26 @@ for n = 1 : N - 1
     pRand = normrnd(0,1, size(X0));%randn(d, 1);
     
     xn = X(:,n);
-    pn = pRand;
+    pn = pRand / beta;
     
     % save previous state
     xnOld = xn;
     pnOld = pn;
     
+    dt_rand = dt * rand(1);
+    L = floor(T/dt_rand);
+    if (L ==0)
+        L=1;
+    end
+    
     for ni = 1: L
         % proposal
-        [X_proposal, p_proposal] = sample_Verlet(2, dt, dV, xn, pn);
+        [X_proposal, p_proposal] = sample_Verlet(2, dt_rand, dV, xn, pn);
         xn = X_proposal(:,end);
         pn = p_proposal(:,end);
     end
     
-    acceptanceProba =  min(1, exp(-H(xn,pn) + H(xnOld,pnOld)));
+    acceptanceProba =  min(1, exp(-beta*H(xn,pn) + beta*H(xnOld,pnOld)));
     
     if ( acceptanceProba < U(n+1))
         % refuse

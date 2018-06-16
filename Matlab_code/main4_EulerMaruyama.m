@@ -65,6 +65,48 @@ print(f9,'figures/figure9','-dpng')
 % 1) Turn off the noise and compare with the exact solution for the
 % corresponding ODE
 
+%% Solution
+% 1) exact solution of the ODE is exp(t)
+
 %% Part 2
 %% Histogram of X_t at t = 1
-% reproduce figure 10 from section 6.3
+
+% number of trajectories
+numberOfTrajectories = 100000;
+
+% step size
+dt = 0.001;
+
+% number of steps, fix final time t = 1
+N = floor(1 / dt);
+
+XfinalTime = zeros(1,numberOfTrajectories);
+
+
+
+for nrtraj = 1 : numberOfTrajectories
+    
+    
+    fprintf('Sampling trajectory number %d\n', nrtraj);
+       
+    X  = sample_EulerMaruyama_linearDrift(N, dt, X0);
+    XfinalTime(nrtraj) = X(end);
+        
+end
+
+fprintf('Done\n');
+%%
+
+f10 = figure(10);
+h = histogram(XfinalTime, 15, 'Normalization','pdf');
+hold on
+
+mu = exp(1);
+sigma = sqrt((exp(1)^2 - 1)/2);
+
+plot(XfinalTime,normpdf(XfinalTime,mu,sigma),'*', 'MarkerSize', 1)
+xlabel('X', 'FontSize', myFontSize)
+ylabel('Frequencies', 'FontSize', myFontSize)
+set(gca, 'FontSize', myFontSize)
+
+print(f10,'figures/figure10','-dpng')

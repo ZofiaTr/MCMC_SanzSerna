@@ -1,4 +1,4 @@
-function X =  sample_Langevin(N, dt, dV, X0, p0)
+function X =  sample_Langevin(N, dt, dV, X0, p0, beta)
 % Langevin discretization
 % parameters : int N, number of steps
 %              double dt, time step size
@@ -21,7 +21,7 @@ function X =  sample_Langevin(N, dt, dV, X0, p0)
   p(:,1) = p0;
    
   gamma=1;
-  kBT=1;
+  kBT=1/beta;
   mass=1;
   a2 = exp(-gamma*dt);
   b2=sqrt(kBT*(1-a2*a2)*mass);

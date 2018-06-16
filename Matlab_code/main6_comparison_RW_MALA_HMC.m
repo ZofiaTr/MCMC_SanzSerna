@@ -121,7 +121,7 @@ print(f15,'figures/figure15','-dpng')
 % step size
 dt = 0.1;
 T = 1;
-numberOfSteps = 200;
+numberOfSteps = 1000;%%200;
 
 fprintf('Sampling with HMC\n');
 

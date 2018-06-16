@@ -69,6 +69,10 @@ set(gca, 'FontSize', myFontSize)
 
 %%
 
+confTempRW = compute_configurational_temperature(X, diffV);
+fprintf('RW: configurational temperature is %f\n', confTempRW );
+
+%%
 print(f11,'figures/figure11','-dpng')
 
 %%
@@ -84,6 +88,10 @@ fprintf('Sampling with MALA\n');
     
 rho_nu = compute_empirical_auto_correlation_coeff(X(1,:), lag);
 
+%%
+
+confTempMALA = compute_configurational_temperature(X, diffV);
+fprintf('MALA: configurational temperature is %f\n', confTempMALA );
 
 %%
 f12 = figure(12);
